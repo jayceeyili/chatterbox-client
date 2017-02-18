@@ -7,7 +7,7 @@ $(document).ready(() => {
   });
 
 
-  setInterval(app.fetch.bind(this), 5000);
+  app.init();
 
 
 });

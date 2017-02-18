@@ -28,30 +28,32 @@
   <body>
     <div id="main">
       <h1>chatterbox</h1>
-      <!-- Your HTML goes here! -->
-      <div class="dropdown">
-        <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Lobby
-          <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-          <li><a href="#">superLobby</a></li>
-          <li><a href="#">Another action</a></li>
-          <li><a href="#">Something else here</a></li>
-          <li role="separator" class="divider"></li>
-          <li><a href="#">Separated link</a></li>
-        </ul>
+      
+      <div class='lobby-container'>
+        <div class="dropdown">
+          <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Lobby
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+            <!-- <li><a href="#">superLobby</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li> -->
+          </ul>
+        </div>
       </div>
+      <!-- Your HTML goes here! -->
 
-      <form class="form-inline">
+      <div class="form-inline">
         <div class="form-group">
           <label for="exampleInputEmail2">Message</label>
           <input id="message" type="text" class="form-control" id="" placeholder="message">
+          <button id="test" class="btn btn-primary">Submit</button>
         </div>
-        <button type="submit" id="send" class="btn btn-primary submit">Submit</button>
-      </form>
+      </div>
 
-    <button id="test" class="btn btn-primary">Submit</button>
     </div>
     <div id="chats"></div>
     <!-- rooms container-->

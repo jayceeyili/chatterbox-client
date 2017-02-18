@@ -3,6 +3,7 @@ body {
     text-align: center;
     padding: 0 25px;
     font-family: arial, sans-serif;
+    color: #fff;
 }
 
 #main, #chats {
@@ -91,6 +92,9 @@ form input[type=text] {
     float: right !important;
 }
 .username {
-    color: lightblue;
+    color: #000;
+    cursor: pointer;
 }
-
+.lobby-container {
+    margin-left: 80%;
+}

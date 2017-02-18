@@ -4,6 +4,7 @@ var app = {
 
   init: () => {
     $('#send').on('submit', app.handleSubmit);
+    app.fetch(app.server);
   },
 
   send: (message) => {
@@ -15,6 +16,8 @@ var app = {
       contentType: 'application/json',
       success: function (data) {
         console.log('chatterbox: Message sent');
+        // console.log(data.objectId);
+        app.fetch(app.server + '/' + data.objectId);
       },
       error: function (data) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -23,21 +26,31 @@ var app = {
     });
   },
 
-  fetch: () => {
+  fetch: (server) => {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
       // url: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
-      url: app.server,
+      url: server,
       type: 'GET',
-      // data: JSON.parse(message),
-      dataType: 'json',
-      // contentType: 'application/json',
+      dataType: 'JSON',
+      data: 'order=-createdAt',
+      contentType: 'application/json',
+      //dataType: 'json',
       success: function (data) {
-        var tweets = data.results;
-        for (var key in tweets) {
-          app.renderMessage(tweets[key]);
+        if (data.results) {
+          // console.log('have results object');
+          for (var key in data.results) {
+            app.renderMessage(data.results[key]);
+            if (data.results[key].roomname) {
+              $('.dropdown-menu').append(`<li><a href="#">${data.results[key].roomname}</a></li>`);
+            }
+          }
+        } else {
+          // console.log('have data object');
+          app.renderMessage(data);
+          // app.init();
         }
-
+        console.log(app.rooms);
         console.log('chatterbox: Message Data Recieved', data);
       },
       error: function (data) {
@@ -54,10 +67,16 @@ var app = {
 
   renderMessage: (message) => {
     var $addChats = $('#chats');
-    var newMessage = message.text;
-    var user = message.username.toUpperCase();
-    var $node = $(`<p><span class="username"> ${user} </span>${newMessage}</p>`);
-    $node.on('click', app.handleUsernameClick);
+    var escapeHtml = function (text) {
+      'use strict';
+      return text.replace(/[\"&<>]/g, function (a) {
+        return { '"': '&quot;', '&': '&amp;', '<': '&lt;', '>': '&gt;' }[a];
+      });
+    };
+    var newMessage = escapeHtml(message.text);
+    var user = message.username;
+    var $node = $(`<div class='alert alert-info' role='alert'><p><span class='username'> ${user} </span>${newMessage}</p></div>`);
+    $('.username').on('click', app.handleUsernameClick);
     $addChats.append($node);
   },
 
@@ -67,7 +86,10 @@ var app = {
     $roomSelect.append('<p>`  ${string} `</p>');
   },
 
-  handleUsernameClick: (message) => {
+  handleUsernameClick: (e) => {
+    console.log(e.target.innerHTML);
+    // console.log('clicked');
+    // console.log($(this).find('span').html());
   },
 
   handleSubmit: () => {
@@ -79,6 +101,11 @@ var app = {
     };
     app.send(message);
     $('#message').val(' ');
-  }
+    app.clearMessages();
+    app.fetch(app.server);
+  },
+  
+  rooms: [],
+
 };
 
