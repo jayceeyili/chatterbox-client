@@ -6,7 +6,7 @@ body {
 }
 
 #main, #chats {
-    width: 500px;
+    width: 650px;
     margin: auto;
     text-align: left;
     background: white;
@@ -86,5 +86,8 @@ form input[type=text] {
 .friend {
     color: #fff;
     background-color: #0090da;
+}
+.float-box {
+    float: right !important;
 }
 
