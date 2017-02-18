@@ -71,6 +71,14 @@ var app = {
   },
 
   handleSubmit: () => {
+    var $message = $('#message').val();
+    var message = {
+      username: 'Genghis Khan',
+      text: $message,
+      roomname: '8 floor'
+    };
+    app.send(message);
+    $('#message').val(' ');
   }
 };
 
