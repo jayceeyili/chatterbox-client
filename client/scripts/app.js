@@ -1,5 +1,7 @@
 // YOUR CODE HERE:
 var app = {
+  server: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
+
   init: () => {
     $('#send').on('submit', app.handleSubmit);
   },
@@ -7,7 +9,7 @@ var app = {
   send: (message) => {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
-      url: 'http://parse.hrsf.hackreactor.com/chatterbox/classes/messages',
+      url: app.server,
       type: 'POST',
       data: JSON.stringify(message),
       contentType: 'application/json',
@@ -24,17 +26,19 @@ var app = {
   fetch: () => {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
-      // url: 'http://parse.hrsf.hackreactor.com/chatterbox/classes/messages',
-      url: undefined,
+      // url: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
+      url: app.server,
       type: 'GET',
       // data: JSON.parse(message),
-      data: {
-        format: 'json'
-      },
-      dataType: 'jsonp',
+      dataType: 'json',
       // contentType: 'application/json',
       success: function (data) {
-        console.log('chatterbox: Message Data Recieved');
+        var tweets = data.results;
+        for (var key in tweets) {
+          app.renderMessage(tweets[key]);
+        }
+
+        console.log('chatterbox: Message Data Recieved', data);
       },
       error: function (data) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -51,8 +55,8 @@ var app = {
   renderMessage: (message) => {
     var $addChats = $('#chats');
     var newMessage = message.text;
-    var user = message.username;
-    var $node = $(`<p><span class="username"> ${user} ${newMessage} </span></p>`);
+    var user = message.username.toUpperCase();
+    var $node = $(`<p><span class="username"> ${user} </span>${newMessage}</p>`);
     $node.on('click', app.handleUsernameClick);
     $addChats.append($node);
   },

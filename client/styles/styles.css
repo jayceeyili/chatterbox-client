@@ -90,4 +90,7 @@ form input[type=text] {
 .float-box {
     float: right !important;
 }
+.username {
+    color: lightblue;
+}
 
