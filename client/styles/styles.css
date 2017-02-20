@@ -88,13 +88,19 @@ form input[type=text] {
     color: #fff;
     background-color: #0090da;
 }
-.float-box {
-    float: right !important;
-}
+
 .username {
     color: #000;
     cursor: pointer;
 }
 .lobby-container {
     margin-left: 80%;
+}
+.roomSelector {
+  color: #000;
+  margin: auto;
+}
+h1 {
+  color: #000;
+  text-align: center;
 }

@@ -1,10 +1,19 @@
 // YOUR CODE HERE:
 var app = {
   server: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
+  roomname: 'lobby',
+  lastMsgId: 0,
+  messages: [],
 
   init: () => {
+    app.username = window.location.search.substr(10);
+    app.$roomSelect = $('.roomSelector');
+
     $('#send').on('submit', app.handleSubmit);
+    app.$roomSelect.on('change', app.handleRoomChange);
+
     app.fetch(app.server);
+
   },
 
   send: (message) => {
@@ -13,11 +22,12 @@ var app = {
       url: app.server,
       type: 'POST',
       data: JSON.stringify(message),
-      contentType: 'application/json',
-      success: function (data) {
+      // contentType: 'application/json',
+      success: data => {
         console.log('chatterbox: Message sent');
         // console.log(data.objectId);
-        app.fetch(app.server + '/' + data.objectId);
+        $('#message').val('');
+        app.fetch();
       },
       error: function (data) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -26,31 +36,27 @@ var app = {
     });
   },
 
-  fetch: (server) => {
+  fetch: () => {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
       // url: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
-      url: server,
+      url: app.server,
       type: 'GET',
-      dataType: 'JSON',
-      data: 'order=-createdAt',
+      // dataType: 'JSON',
+      data: {order: '-createdAt'},
       contentType: 'application/json',
-      //dataType: 'json',
-      success: function (data) {
-        if (data.results) {
-          // console.log('have results object');
-          for (var key in data.results) {
-            app.renderMessage(data.results[key]);
-            if (data.results[key].roomname) {
-              $('.dropdown-menu').append(`<li><a href="#">${data.results[key].roomname}</a></li>`);
-            }
-          }
-        } else {
-          // console.log('have data object');
-          app.renderMessage(data);
-          // app.init();
+      success: data => {
+        if (!data.results || !data.results.length) {
+          return;
         }
-        console.log(app.rooms);
+        app.messages = data.results;
+        var latestMsg = data.results[data.results.length - 1];
+
+        if (latestMsg.objectId !== app.lastMsgId) {
+          app.renderRoomList(data.results);
+          app.renderMessages(data.results);
+          app.lastMsgId = latestMsg.objectId;
+        }
         console.log('chatterbox: Message Data Recieved', data);
       },
       error: function (data) {
@@ -63,6 +69,29 @@ var app = {
   clearMessages: () => {
     var $chats = $('#chats');
     $chats.html('');
+  },
+
+  renderRoomList: messages => {
+    app.$roomSelect.html(`<option value="__newRoom"New Room...</option>`);
+
+    if (messages) {
+      var rooms = {};
+      for (message of messages) {
+        var roomName = message.roomname;
+        if (roomName && !rooms[roomName]) {
+          app.renderRoom(roomName);
+          rooms[roomName] = true;
+        }
+      }
+    }
+
+    app.$roomSelect.val(app.roomname);
+  },
+
+  renderMessages: messages => {
+    app.clearMessages();
+
+    messages.filter(message => message.roomname === app.roomname).forEach(app.renderMessage);
   },
 
   renderMessage: (message) => {
@@ -80,10 +109,10 @@ var app = {
     $addChats.append($node);
   },
 
-  renderRoom: (string) => {
-    var $roomSelect = $('#roomSelect');
-    // var room = string;
-    $roomSelect.append('<p>`  ${string} `</p>');
+  renderRoom: (room) => {
+    var $option = $('<option/>').val(room).text(room);
+
+    app.$roomSelect.append($option);
   },
 
   handleUsernameClick: (e) => {
@@ -97,15 +126,12 @@ var app = {
     var message = {
       username: 'Genghis Khan',
       text: $message,
-      roomname: '8 floor'
+      roomname: app.roomname
     };
     app.send(message);
     $('#message').val(' ');
     app.clearMessages();
     app.fetch(app.server);
   },
-  
-  rooms: [],
 
 };
-
