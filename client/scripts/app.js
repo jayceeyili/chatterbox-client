@@ -1,19 +1,20 @@
 // YOUR CODE HERE:
 var app = {
   server: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
+  username: 'Genghis Khan',
   roomname: 'lobby',
   lastMsgId: 0,
   messages: [],
+  friends: {},
 
   init: () => {
     app.username = window.location.search.substr(10);
     app.$roomSelect = $('.roomSelector');
 
-    $('#send').on('submit', app.handleSubmit);
-    app.$roomSelect.on('change', app.handleRoomChange);
+    app.$roomSelect.on('change', app.handelRoomSelete);
+    $('#chats').on('click', '.username', app.handleUsernameClick);
 
-    app.fetch(app.server);
-
+    app.fetch();
   },
 
   send: (message) => {
@@ -21,13 +22,11 @@ var app = {
       // This is the url you should use to communicate with the parse API server.
       url: app.server,
       type: 'POST',
-      data: JSON.stringify(message),
+      data: message,
+      // data: JSON.stringify(message),
       // contentType: 'application/json',
       success: data => {
         console.log('chatterbox: Message sent');
-        // console.log(data.objectId);
-        $('#message').val('');
-        app.fetch();
       },
       error: function (data) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -57,7 +56,7 @@ var app = {
           app.renderMessages(data.results);
           app.lastMsgId = latestMsg.objectId;
         }
-        console.log('chatterbox: Message Data Recieved', data);
+        // console.log('chatterbox: Message Data Recieved', data);
       },
       error: function (data) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -72,7 +71,7 @@ var app = {
   },
 
   renderRoomList: messages => {
-    app.$roomSelect.html(`<option value="__newRoom"New Room...</option>`);
+    app.$roomSelect.html(`<option value="__newRoom">New Room...</option>`);
 
     if (messages) {
       var rooms = {};
@@ -95,18 +94,29 @@ var app = {
   },
 
   renderMessage: (message) => {
-    var $addChats = $('#chats');
-    var escapeHtml = function (text) {
-      'use strict';
-      return text.replace(/[\"&<>]/g, function (a) {
-        return { '"': '&quot;', '&': '&amp;', '<': '&lt;', '>': '&gt;' }[a];
-      });
-    };
-    var newMessage = escapeHtml(message.text);
-    var user = message.username;
-    var $node = $(`<div class='alert alert-info' role='alert'><p><span class='username'> ${user} </span>${newMessage}</p></div>`);
-    $('.username').on('click', app.handleUsernameClick);
-    $addChats.append($node);
+    var $chat = $('<div class="alert alert-info" role="alert"/>');
+    // var escapeHtml = text => {
+    //   return text.replace(/[\"&<>]/g, a => {
+    //     return { '"': '&quot;', '&': '&amp;', '<': '&lt;', '>': '&gt;' }[a];
+    //   });
+    // };
+    // var newMessage = escapeHtml(message.text);
+    // var user = message.username;
+    // var $node = $(`<div class='alert alert-info' role='alert'><p><span class='username'>${user}</span>:   ${newMessage}</p></div>`);
+    // // $('.username').on('click', app.handleUsernameClick);
+    // if (app.friends[user] === true) {
+    //   $('.username').addClass('friend');
+    // }
+
+    var $user = $('<span class="username"/>');
+    $user.text(message.username + ': ').attr('data-roomname', message.roomname).attr('data-username', message.username).appendTo($chat);
+    if (app.friends[message.username] === true) {
+      $user.addClass('friend');
+    }
+
+    var $msg = $('<span/>');
+    $msg.text(message.text).appendTo($chat);
+    $('#chats').append($chat);
   },
 
   renderRoom: (room) => {
@@ -115,23 +125,44 @@ var app = {
     app.$roomSelect.append($option);
   },
 
-  handleUsernameClick: (e) => {
-    console.log(e.target.innerHTML);
-    // console.log('clicked');
-    // console.log($(this).find('span').html());
+  handelRoomSelete: () => {
+    var selected = app.$roomSelect.prop('selectedIndex')
+
+    if (selected === 0) {
+      var newName = prompt('Please Enter Your Room Name');
+
+      if (newName) {
+        app.roomname = newName;
+        app.renderRoom(newName);
+        app.$roomSelect.val(newName);
+      }
+    } else {
+      app.roomname = app.$roomSelect.val();
+    }
+    // console.log(app.roomname);
+    app.renderMessages(app.messages);
+  },
+
+  handleUsernameClick: event => {
+    // var username = event.target.innerHTML;
+    var username = $(event.target).data('username');
+    // console.log(username);
+    // Toggle!
+    app.friends[username] = !app.friends[username];
+    var $usernames = $(`[data-username=${username}]`).toggleClass('friend');
   },
 
   handleSubmit: () => {
     var $message = $('#message').val();
     var message = {
-      username: 'Genghis Khan',
+      username: app.username,
       text: $message,
-      roomname: app.roomname
+      roomname: app.roomname || '8 floor'
     };
     app.send(message);
-    $('#message').val(' ');
+    $('#message').val('');
     app.clearMessages();
-    app.fetch(app.server);
+    app.fetch();
   },
 
 };

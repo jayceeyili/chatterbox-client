@@ -84,22 +84,25 @@ form input[type=text] {
     padding: 10px;
 }
 
-.friend {
-    color: #fff;
-    background-color: #0090da;
-}
-
 .username {
     color: #000;
     cursor: pointer;
+    font-style: italic;
 }
-.lobby-container {
-    margin-left: 80%;
+
+.friend {
+  color: red;
+  font-weight: bold;
 }
+
 .roomSelector {
   color: #000;
-  margin: auto;
+  margin-bottom: 20px;
+  float: right;
+  width: 100px;
+  height: 30px;
 }
+
 h1 {
   color: #000;
   text-align: center;

@@ -1,12 +1,6 @@
 $(document).ready(() => {
-
-
-  $('#test').on('click', () => {
-    app.handleSubmit();
-  });
-
-
   app.init();
-
-
+  
+  $('#test').on('click', app.handleSubmit);
+  setInterval(() => app.fetch(), 6000);
 });
